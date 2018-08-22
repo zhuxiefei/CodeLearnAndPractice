@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.file.business.file.dao.SystemFileDao">
+
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+		fileId,fileName,fileUrl,fileType,createTime
+	    ]]>
+	</sql>
+
+	<!--保存 -->
+	<insert id="insertSystemFile">
+	    <![CDATA[
+	        INSERT INTO system_file ( 
+	        	fileId,fileName,fileUrl,fileType,createTime
+	        ) VALUES (
+	        	#{fileId} ,
+	        	#{fileName} ,
+	        	#{fileUrl} ,
+	        	#{fileType} ,
+	        	#{createTime} 
+	        )
+	    ]]>
+	</insert>
+
+	<!-- 批量保存 -->
+	<insert id="insertSystemFileBatch">
+	    <![CDATA[
+	        INSERT INTO system_file (
+	        	fileId,fileName,fileUrl,fileType,createTime
+	        ) VALUES 
+	         ]]>
+		<foreach item="item" collection="list" separator=",">
+			(
+						#{item.fileId} ,
+						#{item.fileName} ,
+						#{item.fileUrl} ,
+						#{item.fileType} ,
+						#{item.createTime} 
+			)
+		</foreach>
+
+	</insert>
+
+	<!-- update 条件组合 -->
+	<sql id="update_sql">
+		<set>
+			<if
+				test="fileName != null and fileName != ''">
+				fileName = #{fileName}
+				,
+			</if>
+			<if
+				test="fileUrl != null and fileUrl != ''">
+				fileUrl = #{fileUrl}
+				,
+			</if>
+			<if test="fileType != null">
+				fileType = #{fileType} ,
+			</if>
+			<if test="createTime != null">
+				createTime = #{createTime} 
+			</if>
+		</set>
+	</sql>
+
+    <!-- 模糊查询这样： 字段名 LIKE CONCAT('%',CONCAT(#{model.userName},'%')) -->
+	<!-- where 条件组合 -->
+	<sql id="where_sql">
+		<where>
+			<if
+				test="systemFile.fileName != null and systemFile.fileName != ''">
+				fileName = #{systemFile.fileName}				 
+			</if>
+			<if
+				test="systemFile.fileUrl != null and systemFile.fileUrl != ''">
+				 and fileUrl = #{systemFile.fileUrl}				 
+			</if>
+			<if test="systemFile.fileType != null">
+				 and  fileType = #{systemFile.fileType} 
+			</if>
+			<if test="systemFile.createTime != null">
+				 and createTime = #{systemFile.createTime} 
+			</if>
+		</where>
+	</sql>
+
+	<!-- 修改 -->
+	<update id="updateSystemFileById">
+		UPDATE system_file
+		<include refid="update_sql" />
+		WHERE
+		fileId =
+		#{fileId} 	</update>
+
+	<!-- 根据ID删除 -->
+	<delete id="deleteSystemFileById">
+		DELETE FROM system_file
+		WHERE
+		fileId = #{fileId} 	</delete>
+
+
+
+	<!-- selsect -->
+	<select id="getSystemFileById" resultType="com.bdcourtyard.business.file.model.SystemFile">
+		SELECT
+		<include refid="columns" />
+		FROM system_file
+		WHERE
+		fileId = #{fileId} 	</select>
+
+	<!-- selsect -->
+	<select id="getSystemFiles" resultType="com.bdcourtyard.business.file.model.SystemFile">
+		SELECT
+		<include refid="columns" />
+		FROM system_file
+		<include refid="where_sql" />
+	</select>
+	
+			<!-- selsect -->
+	<select id="getSystemFilesForPage" resultType="com.bdcourtyard.business.file.model.SystemFile">
+		SELECT
+		<include refid="columns" />
+		FROM system_file
+		<include refid="where_sql" />
+	</select>
+
+	<select id="getSystemFilesByConditions" resultType="com.bdcourtyard.business.file.model.SystemFile">
+		SELECT
+		<include refid="columns" />
+		FROM system_file
+		WHERE 
+			1 =1
+		<foreach collection="conditions" item="condition">
+			{condition.exp}
+		</foreach>
+	</select>
+
+</mapper>
